@@ -1,0 +1,17 @@
+# Local AWS credentials (NEVER commit these)
+aws-config
+aws-credentials
+
+# Terraform state files (contain sensitive data)
+terraform.tfstate
+terraform.tfstate.backup
+
+# Terraform lock/temp files
+.terraform/
+.terraform.tfstate.lock.info
+*.tfplan
+*.tfvars
+
+# OS files
+.DS_Store
+Thumbs.db
