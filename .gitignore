@@ -3,18 +3,16 @@ aws-config
 aws-credentials
 
 # Terraform variable files
-*.tfvars
-!sample.terraform.tfvars
+terraform.tfvars
 
 # Terraform state files (contain sensitive data)
-terraform.tfstate
-terraform.tfstate.backup
+*.tfstate
+*.tfstate.*
 
 # Terraform lock/temp files
 .terraform/
 .terraform.tfstate.lock.info
 *.tfplan
-*.tfvars
 
 # OS files
 .DS_Store
