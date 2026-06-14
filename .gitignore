@@ -2,6 +2,10 @@
 aws-config
 aws-credentials
 
+# Terraform variable files
+*.tfvars
+!sample.terraform.tfvars
+
 # Terraform state files (contain sensitive data)
 terraform.tfstate
 terraform.tfstate.backup
