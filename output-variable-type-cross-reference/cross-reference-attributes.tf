@@ -28,9 +28,7 @@ resource "aws_instance" "web" {
   instance_type   = var.instance_type
   key_name        = "Terraform"
   security_groups = concat(var.security_groups, [aws_security_group.allow_tls.name])
-  tags = {
-    Name = "EC2 VM - ${count.index}"
-  }
+  tags = var.ec2_tags
 }
 
 resource "aws_eip_association" "eip_assoc" {

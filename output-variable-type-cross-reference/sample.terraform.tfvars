@@ -9,3 +9,10 @@ security_groups = [
   "launch-wizard-1",
   "launch-wizard-2",
 ]
+ec2_tags = {
+  Name        = "web-server"
+  Environment = "production"
+  Project     = "terraform-labs"
+  Owner       = "test_user"
+  ManagedBy   = "Terraform"
+}

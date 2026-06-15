@@ -85,6 +85,37 @@ terraform apply
 - `string` – e.g., `aws_access_key`, `aws_secret_key`, `aws_region`, `username`, `ami`, `instance_type`
 - `number` – e.g., `instance_count`
 - `list(string)` – e.g., `security_groups`
+- `map(string)` – e.g., `ec2_tags`
+
+### `map(string)` Example
+
+```hcl
+variable "ec2_tags" {
+  type = map(string)
+}
+```
+
+```hcl
+resource "aws_instance" "web" {
+  count           = var.instance_count
+  ami             = var.ami
+  instance_type   = var.instance_type
+  key_name        = "Terraform"
+  security_groups = concat(var.security_groups, [aws_security_group.allow_tls.name])
+  tags            = var.ec2_tags
+}
+```
+
+`terraform.tfvars`
+```hcl
+ec2_tags = {
+  Name        = "web-server"
+  Environment = "production"
+  Project     = "terraform-labs"
+  Owner       = "Khushal"
+  ManagedBy   = "Terraform"
+}
+```
 
 ## Output Values
 

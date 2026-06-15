@@ -36,3 +36,7 @@ variable "security_groups" {
   description = "List of security groups"
   type = list(string)
 }
+
+variable "ec2_tags" {
+  type = map(string)
+}
