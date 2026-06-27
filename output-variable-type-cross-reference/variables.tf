@@ -20,9 +20,15 @@ variable "ami" {
   type = string
 }
 
-variable "instance_type" {
+variable "dev_instance_type" {
   description = "Amazon Instance Type"
   default     = "t2.micro"
+  type = string
+}
+
+variable "prod_instance_type" {
+  description = "Amazon Instance Type"
+  default     = "t2.medium"
   type = string
 }
 
@@ -39,4 +45,8 @@ variable "security_groups" {
 
 variable "ec2_tags" {
   type = map(string)
+}
+
+variable  "environment" {
+  type = string
 }
