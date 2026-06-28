@@ -169,13 +169,22 @@ This makes your infrastructure more reusable, allowing the same Terraform config
 
 # Terraform Functions
 
-Terraform provides several built-in functions to manipulate strings, collections, files, and more. This lab demonstrates the **`file()`** function.
+Terraform provides many built-in functions for working with strings, collections, dates, files, and more. This lab demonstrates the following functions:
 
-### `file()` Function
+- `file()`
+- `lookup()`
+- `element()`
+- `formatdate()`
+- `timestamp()`
+- `length()`
+
+---
+
+## `file()` Function
 
 The `file()` function reads the contents of a file and returns it as a string.
 
-**Syntax**
+### Syntax
 
 ```hcl
 file(path)
@@ -196,30 +205,220 @@ resource "aws_iam_user_policy" "lb_ro" {
 }
 ```
 
-The `iam-user-policy.json` file contains the IAM policy in JSON format:
+### Why use `file()`?
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:Describe*"
-      ],
-      "Resource": "*"
-    }
-  ]
+- Keeps large JSON files separate from Terraform code.
+- Makes IAM policies easier to maintain.
+- Improves readability and reusability.
+- Can also load shell scripts, certificates, templates, and configuration files.
+
+---
+
+## `lookup()` Function
+
+The `lookup()` function retrieves a value from a map using a key.
+
+### Syntax
+
+```hcl
+lookup(map, key, default)
+```
+
+The `default` argument is optional.
+
+Example:
+
+```hcl
+variable "region" {
+  default = "us-east-1"
+}
+
+variable "amis" {
+  type = map(string)
+
+  default = {
+    us-east-1 = "ami-08a0d1e16fc3f61ea"
+    us-west-2 = "ami-0b20a6f09484773af"
+    ap-south-1 = "ami-0e1d06225679bc1c5"
+  }
+}
+
+resource "aws_instance" "app-dev" {
+  ami = lookup(var.amis, var.region)
 }
 ```
 
-### Why use `file()`?
+If `var.region` is `"us-east-1"`, Terraform returns:
 
-* Keeps large JSON files separate from Terraform code.
-* Makes IAM policies easier to maintain.
-* Improves readability and reusability.
-* Can also be used to load shell scripts, templates, certificates, and other configuration files.
+```text
+ami-08a0d1e16fc3f61ea
+```
 
+### Why use `lookup()`?
+
+- Retrieves values from maps.
+- Useful for selecting region-specific AMIs.
+- Prevents writing multiple conditional expressions.
+
+---
+
+## `element()` Function
+
+The `element()` function returns an item from a list using its index.
+
+### Syntax
+
+```hcl
+element(list, index)
+```
+
+Example:
+
+```hcl
+variable "tags" {
+  default = [
+    "firstec2",
+    "secondec2"
+  ]
+}
+
+resource "aws_instance" "app-dev" {
+  count = length(var.tags)
+
+  tags = {
+    Name = element(var.tags, count.index)
+  }
+}
+```
+
+Terraform creates:
+
+| EC2 Instance | Name Tag |
+|--------------|----------|
+| 1 | firstec2 |
+| 2 | secondec2 |
+
+### Why use `element()`?
+
+- Retrieves values from a list by index.
+- Commonly used with `count.index`.
+- Useful when creating multiple resources with different names.
+
+---
+
+## `length()` Function
+
+The `length()` function returns the number of elements in a collection or the number of characters in a string.
+
+### Syntax
+
+```hcl
+length(value)
+```
+
+Example:
+
+```hcl
+count = length(var.tags)
+```
+
+If:
+
+```hcl
+tags = [
+  "firstec2",
+  "secondec2"
+]
+```
+
+Terraform creates:
+
+```text
+2 EC2 instances
+```
+
+### Why use `length()`?
+
+- Determines how many resources should be created.
+- Frequently used with the `count` meta-argument.
+
+---
+
+## `timestamp()` Function
+
+The `timestamp()` function returns the current date and time in UTC using RFC3339 format.
+
+### Syntax
+
+```hcl
+timestamp()
+```
+
+Example output:
+
+```text
+2026-06-28T05:20:31Z
+```
+
+This value is commonly passed to other functions such as `formatdate()`.
+
+---
+
+## `formatdate()` Function
+
+The `formatdate()` function converts a timestamp into a human-readable format.
+
+### Syntax
+
+```hcl
+formatdate(spec, timestamp)
+```
+
+Example:
+
+```hcl
+tags = {
+  CreationDate = formatdate("DD MMM YYYY hh:mm ZZZ", timestamp())
+}
+```
+
+Possible output:
+
+```text
+28 Jun 2026 05:20 UTC
+```
+
+### Why use `formatdate()`?
+
+- Creates readable timestamps.
+- Useful for resource tags.
+- Makes infrastructure metadata easier to understand.
+
+---
+
+## Example Combining Multiple Functions
+
+```hcl
+resource "aws_instance" "app-dev" {
+  ami           = lookup(var.amis, var.region)
+  instance_type = "t2.micro"
+
+  count = length(var.tags)
+
+  tags = {
+    Name         = element(var.tags, count.index)
+    CreationDate = formatdate("DD MMM YYYY hh:mm ZZZ", timestamp())
+  }
+}
+```
+
+This example demonstrates several Terraform functions working together:
+
+- `lookup()` selects the AMI based on the AWS region.
+- `length()` determines how many EC2 instances to create.
+- `element()` assigns a different name tag to each instance.
+- `timestamp()` generates the current UTC time.
+- `formatdate()` converts the timestamp into a readable format for tagging resources.
 ---
 
 # Output Values
