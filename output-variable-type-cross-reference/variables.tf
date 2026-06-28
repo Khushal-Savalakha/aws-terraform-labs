@@ -1,13 +1,13 @@
 variable "aws_access_key" {
-  type        = string
+  type = string
 }
 
 variable "aws_secret_key" {
-  type        = string
+  type = string
 }
 
 variable "aws_region" {
-  type        = string
+  type = string
 }
 
 variable "username" {
@@ -17,36 +17,36 @@ variable "username" {
 variable "ami" {
   description = "Amazon Machine Image Value"
   default     = "ami-0d5e8769671b48387"
-  type = string
+  type        = string
 }
 
 variable "dev_instance_type" {
   description = "Amazon Instance Type"
   default     = "t2.micro"
-  type = string
+  type        = string
 }
 
 variable "prod_instance_type" {
   description = "Amazon Instance Type"
   default     = "t2.medium"
-  type = string
+  type        = string
 }
 
 variable "instance_count" {
   description = "Total No.of Instances"
   default     = 1
-  type = number
+  type        = number
 }
 
 variable "security_groups" {
   description = "List of security groups"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "ec2_tags" {
   type = map(string)
 }
 
-variable  "environment" {
+variable "environment" {
   type = string
 }

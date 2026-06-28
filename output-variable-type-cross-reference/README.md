@@ -1,12 +1,14 @@
-# Output, Variable Types, Conditional Expressions & Cross-Referencing in Terraform
+# Output, Variable Types, Conditional Expressions, Terraform Functions & Cross-Referencing in Terraform
 
-This lab demonstrates how to use **output values**, **variable types**, **conditional expressions**, and **cross-referencing resource attributes** in Terraform with AWS resources (EC2, EIP, Security Group, IAM User).
+This lab demonstrates how to use **output values**, **variable types**, **conditional expressions**, **Terraform built-in functions**, and **cross-referencing resource attributes** in Terraform with AWS resources (EC2, EIP, Security Group, IAM User).
 
 ## Files
 
 * `provider.tf` – AWS provider configuration
 * `variables.tf` – Input variable definitions with type constraints
 * `cross-reference-attributes.tf` – Resources demonstrating conditional expressions, attribute cross-referencing, and outputs
+* `function.tf` – Demonstrates Terraform built-in functions such as `file()`
+* `iam-user-policy.json` – IAM policy loaded using Terraform's `file()` function
 * `terraform.tfvars` – Variable values for this environment
 * `sample.terraform.tfvars` – Example/template for variable values
 
@@ -165,6 +167,61 @@ This makes your infrastructure more reusable, allowing the same Terraform config
 
 ---
 
+# Terraform Functions
+
+Terraform provides several built-in functions to manipulate strings, collections, files, and more. This lab demonstrates the **`file()`** function.
+
+### `file()` Function
+
+The `file()` function reads the contents of a file and returns it as a string.
+
+**Syntax**
+
+```hcl
+file(path)
+```
+
+Example:
+
+```hcl
+resource "aws_iam_user" "this" {
+  name = "demo-user"
+}
+
+resource "aws_iam_user_policy" "lb_ro" {
+  name = "demo-user-policy"
+  user = aws_iam_user.this.name
+
+  policy = file("./iam-user-policy.json")
+}
+```
+
+The `iam-user-policy.json` file contains the IAM policy in JSON format:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Describe*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+### Why use `file()`?
+
+* Keeps large JSON files separate from Terraform code.
+* Makes IAM policies easier to maintain.
+* Improves readability and reusability.
+* Can also be used to load shell scripts, templates, certificates, and other configuration files.
+
+---
+
 # Output Values
 
 Outputs expose useful information after `terraform apply`, such as resource IDs or computed attributes, without manually inspecting the Terraform state.
@@ -195,6 +252,7 @@ Examples in this lab:
 * `aws_security_group.allow_tls.id` is referenced by the ingress rule.
 * `aws_instance.web` combines existing security groups with the newly created one using `concat()`.
 * `aws_eip_association.eip_assoc` associates the Elastic IP with `aws_instance.web[0].id`.
+* `aws_iam_user_policy.lb_ro` references `aws_iam_user.this.name` to attach the IAM policy to the created IAM user.
 
 ---
 
