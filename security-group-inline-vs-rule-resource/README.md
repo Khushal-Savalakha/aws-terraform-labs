@@ -13,22 +13,66 @@ The goal is to understand how Terraform manages Security Group rules, state, and
 .
 ├── aws-security-group-inline-rules.tf
 ├── aws-security-group-rule-resources.tf
+├── local-values.tf
 ├── provider.tf
 ├── variables.tf
 ├── sample.terraform.tfvars
+├── terraform.tfvars
 └── README.md
 ```
 
 ### Files
 
-| File                                   | Purpose                                          |
-| -------------------------------------- | ------------------------------------------------ |
-| `aws-security-group-inline-rules.tf`   | Security Group using inline ingress/egress rules |
-| `aws-security-group-rule-resources.tf` | Security Group using standalone rule resources   |
-| `provider.tf`                          | AWS provider configuration                       |
-| `variables.tf`                         | Input variables                                  |
-| `sample.terraform.tfvars`              | Example variable values                          |
-| `README.md`                            | Project documentation                            |
+| File | Purpose |
+|------|---------|
+| `aws-security-group-inline-rules.tf` | Security Group using inline ingress/egress rules |
+| `aws-security-group-rule-resources.tf` | Security Group using standalone rule resources |
+| `local-values.tf` | Defines reusable local values and creates common Security Group resources |
+| `provider.tf` | AWS provider configuration |
+| `variables.tf` | Input variable declarations |
+| `terraform.tfvars` | Input variable values used for deployment |
+| `sample.terraform.tfvars` | Example input variable values |
+| `README.md` | Project documentation |
+
+---
+
+## Local Values
+
+Terraform **locals** allow you to define reusable values within a module.
+
+They are useful when:
+
+- A value is used multiple times.
+- You want to avoid repeating the same value in different resources.
+- You want to generate dynamic values using Terraform functions.
+- You want to improve the readability and maintainability of your configuration.
+
+Example:
+
+```hcl
+locals {
+  default = {
+    Team = "security-teams"
+    CreationDate = "date - ${formatdate("DD MMM YYYY", timestamp())}"
+  }
+}
+```
+
+The local value can then be reused across multiple resources:
+
+```hcl
+resource "aws_security_group" "sg_01" {
+  name = "app_firewall"
+  tags = local.default
+}
+
+resource "aws_security_group" "sg_02" {
+  name = "db_firewall"
+  tags = local.default
+}
+```
+
+Using locals follows the **DRY (Don't Repeat Yourself)** principle by defining a value once and reusing it wherever needed.
 
 ---
 
@@ -98,14 +142,14 @@ and proposes changes to restore the desired state.
 
 ## Comparison
 
-| Feature            | Inline Rules | Rule Resources |
-| ------------------ | ------------ | -------------- |
-| Simplicity         | ✅            | ⚠️             |
-| State Granularity  | ❌            | ✅              |
-| Drift Detection    | Good         | Better         |
-| Team Collaboration | ❌            | ✅              |
-| Production Ready   | ⚠️           | ✅              |
-| Recommended Today  | ❌            | ✅              |
+| Feature | Inline Rules | Rule Resources |
+|---------|--------------|----------------|
+| Simplicity | ✅ | ⚠️ |
+| State Granularity | ❌ | ✅ |
+| Drift Detection | Good | Better |
+| Team Collaboration | ❌ | ✅ |
+| Production Ready | ⚠️ | ✅ |
+| Recommended Today | ❌ | ✅ |
 
 ---
 
